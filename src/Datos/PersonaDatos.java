@@ -47,7 +47,7 @@ public class PersonaDatos {
 			if(miConexion!=null) {
 				PreparedStatement psCrear = null;
 				psCrear = (PreparedStatement)miConexion.prepareStatement("INSERT INTO personas (nombre_ap,nombre_usuario," + 
-				"clave,mail,dni,telefono,es_admin,habilitado) VALUES(?,?,?,?,?,?,?,?)");
+				"clave,mail,dni,telefono,esAdmin,habilitado) VALUES(?,?,?,?,?,?,?,?)");
 				psCrear.setString(1,persona.getNombre_ap());
 				psCrear.setString(2, persona.getNombre_usuario());
 				psCrear.setString(3, persona.getClave());
@@ -140,7 +140,7 @@ public class PersonaDatos {
 			{
 				PreparedStatement psEditar = null;
 				psEditar = (PreparedStatement)miConexion.prepareStatement("UPDATE personas" + 
-						" SET nombre_ap=?,clave=?,mail=?,telefono=?,es_admin=?,nombre_usuario=?,dni=? WHERE" + 
+						" SET nombre_ap=?,clave=?,mail=?,telefono=?,esAdmin=?,nombre_usuario=?,dni=? WHERE" + 
 				" id_cliente=?");
 
 				psEditar.setString(1, persona.getNombre_ap());              
@@ -180,7 +180,7 @@ public class PersonaDatos {
 			if(miConexion!=null) {
 				PreparedStatement psGet = null;
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT nombre_ap," + 
-				"nombre_usuario,clave,mail,dni,telefono,es_admin,habilitado FROM personas WHERE id_cliente=? AND habilitado=?"); 
+				"nombre_usuario,clave,mail,dni,telefono,esAdmin,habilitado FROM personas WHERE id_cliente=? AND habilitado=?"); 
 				psGet.setInt(1, id_cliente);
 				psGet.setBoolean(2, true);
 				ResultSet rsGet = psGet.executeQuery();
@@ -253,7 +253,7 @@ public class PersonaDatos {
 			if(miConexion!=null) {
 				PreparedStatement psGet = null;
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT nombre_ap," + 
-				"nombre_usuario,clave,mail,dni,telefono,es_admin,habilitado FROM personas WHERE id_cliente=? ;"); 
+				"nombre_usuario,clave,mail,dni,telefono,esAdmin,habilitado FROM personas WHERE id_cliente=? ;"); 
 				psGet.setInt(1, id_cliente);
 				ResultSet rsGet = psGet.executeQuery();
 				while(rsGet.next()) {
@@ -325,7 +325,7 @@ public class PersonaDatos {
 			if(miConexion!=null) {
 				PreparedStatement psGetAll = null;
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_cliente," + 
-				"nombre_ap,nombre_usuario,clave,mail,dni,telefono,es_admin,habilitado FROM personas WHERE habilitado=?;");
+				"nombre_ap,nombre_usuario,clave,mail,dni,telefono,esAdmin,habilitado FROM personas WHERE habilitado=?;");
 				psGetAll.setBoolean(1, true);
 				ResultSet rsGetAll = psGetAll.executeQuery();
 				while(rsGetAll.next()) {

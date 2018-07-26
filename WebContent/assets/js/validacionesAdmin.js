@@ -33,17 +33,16 @@ function mostrarErrores(selector, errores) {
 	selector.after(divError);
 }
 
-var erNombreAp = /^[\p{L}\s'.-]+$/;
 var erNombreUsr = /^[a-z]([A-Za-z0-9]{7,14})+$/;
 var erClave = /^\w{6,12}$/;
-var erMail = /^[\w-\.]{6,15}@[a-z]{2,15}\.[a-z]{2,3}$/;
+var erMail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 var erDni = /^[1-9][0-9]{6,7}$/;
 var erTelefono = /^[0-9]{7,10}/;
-var erDireccion = /^\w*$/;
+var erDireccion = /[^]*/;
 var erCantidad = /^[1-9][0-9]*$/;
 var erCadena = /^[\p{L}\s'.-]+$/;
 var erPrecio = /^[1-9][0-9]*$/; 
-var erStock = /^[1-9][0-9]*$/;
+var erStock = /^[1-9]\d*$/;
 
 function validarDescripcionTipo() {
 	var form = $('#formTipo');
@@ -113,11 +112,7 @@ function validarPersona() {
 	borrarErrores();
 
 	var errores=[];
-
-	if(!$(inputNyA).val().match(erNombreAp)) {
-		bandera=0;
-		errores[errores.length] = "Nombre y apellido incorrecto. Deben ser con la primera letra en mayúsculas y las siguientes en minúsculas. Como mínimo debe haber un Nombre y un Apellido.";
-	}
+	
 	if(!$(inputUsuario).val().match(erNombreUsr)) {
 		bandera=0;
 		errores[errores.length] = "Nombre de usuario incorrecto. Deben ser con la primera letra en minúsculas. Debe tener una longitud entre 8 y 15 caracteres y no puede tener espacios en blanco.";
