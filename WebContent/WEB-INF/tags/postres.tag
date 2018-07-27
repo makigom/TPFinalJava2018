@@ -44,7 +44,7 @@
 
 	<footer>
 		<div class="Postres-sub-footer">
-			¿Necesitas ayuda? <a href="#logout">Contactate</a> con nosotros y te brindaremos asesoramiento.
+			¿Necesitas ayuda? <a href="/Postres/contacto.jsp">Contactate</a> con nosotros y te brindaremos asesoramiento.
 		</div>
 		<div class="Postres-adm-footer">
 			Copyright &copy; 2018
