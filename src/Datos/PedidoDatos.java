@@ -9,18 +9,20 @@ import java.util.ArrayList;
 import Entidades.Pedido;
 import Entidades.PedidoDetalle;
 import Entidades.Persona;
+import appExceptions.ApplicationException;
 
 import com.mysql.jdbc.PreparedStatement;
 
 public class PedidoDatos {
 
-	public void crearPedido(Pedido pedido, ArrayList<PedidoDetalle> productos) {
-		Connection miConexion;
+	public void crearPedido(Pedido pedido, ArrayList<PedidoDetalle> productos) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
+		PreparedStatement psCrear = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psCrear = null;
+				
 				psCrear = (PreparedStatement)miConexion.prepareStatement("INSERT INTO pedidos (fecha_pedido" + 
 						",id_cliente,direccion_envio,estado,total) VALUES(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 				psCrear.setTimestamp(1, pedido.getFechaHrPedido());
@@ -41,56 +43,82 @@ public class PedidoDatos {
 
 					psCrear.execute();
 				}
-				psCrear.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psCrear != null) psCrear.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	}
 
-	public void cambiarEstado(int id_pedido, String estado) {
-		Connection miConexion;
+	public void cambiarEstado(int id_pedido, String estado) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
+		PreparedStatement psEditar = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psEditar = null;
+				
 				psEditar = (PreparedStatement)miConexion.prepareStatement("UPDATE pedidos" + 
 				" SET estado=? WHERE id_pedido=? ;");
 				psEditar.setString(1, estado);
 				psEditar.setInt(2, id_pedido);
 				psEditar.execute();
-				psEditar.close();
-				miConexion.close();
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psEditar != null) psEditar.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	} 
 
-	public ArrayList<Pedido> getAllPedidos()
+	public ArrayList<Pedido> getAllPedidos() throws ApplicationException, IOException, ClassNotFoundException
 	{
-		Connection miConexion;
+		Connection miConexion = null;
 		ArrayList<Pedido> pedidos = new ArrayList<Pedido>();
-
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_pedido," + 
 				"fecha_pedido,id_cliente,direccion_envio,estado,total FROM pedidos;");
 				ResultSet rsGetAll = psGetAll.executeQuery();
@@ -106,29 +134,43 @@ public class PedidoDatos {
 					pedidos.add(pedido);
 					pedido = null;
 				}
-				psGetAll.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return pedidos;
 	}
 	
-	public ArrayList<Pedido> getAllPedidos(Persona per) {
-		Connection miConexion;
+	public ArrayList<Pedido> getAllPedidos(Persona per) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		ArrayList<Pedido> pedidos = new ArrayList<Pedido>();
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_pedido," + 
 				"fecha_pedido,id_cliente,direccion_envio,estado,total FROM pedidos WHERE id_cliente=? ;");
 				psGetAll.setInt(1, per.getId_cliente());
@@ -145,29 +187,43 @@ public class PedidoDatos {
 					pedidos.add(pedido);
 					pedido = null;
 				}
-				psGetAll.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return pedidos;
 	}
 	
-	public Pedido getPedido(int id) {
-		Connection miConexion;
+	public Pedido getPedido(int id) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		Pedido pedido = null;
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_pedido," + 
 				"fecha_pedido,id_cliente,direccion_envio,estado,total FROM pedidos WHERE id_pedido=? ;");
 				psGetAll.setInt(1, id);
@@ -185,26 +241,41 @@ public class PedidoDatos {
 				psGetAll.close();
 				miConexion.close();
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return pedido;
 	}
 	
-	public ArrayList<PedidoDetalle> getPedidoDetalle(int id) {
-		Connection miConexion;
+	public ArrayList<PedidoDetalle> getPedidoDetalle(int id) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
 		ArrayList<PedidoDetalle> pedidoDetalle = new ArrayList<PedidoDetalle>();
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT " + 
 				"id_producto,cantidad FROM productos_pedidos WHERE id_pedido=? ;");
 				psGetAll.setInt(1,id);
@@ -217,17 +288,30 @@ public class PedidoDatos {
 					pedidoDetalle.add(pd);
 					pd = null;
 				}
-				psGetAll.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return pedidoDetalle;
 	}

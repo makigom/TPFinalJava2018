@@ -1,29 +1,28 @@
 package Datos;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 import Entidades.Producto;
+import appExceptions.ApplicationException;
 
 import com.mysql.jdbc.PreparedStatement;
 
 public class ProductoDatos {
 
-	public void crearProducto(Producto producto) throws IOException {
-		Connection miConexion;
+	public void crearProducto(Producto producto) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
+		PreparedStatement psCrear = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
-			if(miConexion!=null) {
-				PreparedStatement psCrear = null;
+			
+			if(miConexion!=null) {				
 				psCrear = (PreparedStatement)miConexion.prepareStatement("INSERT INTO productos (nombre_producto,precio," + 
 				"img,stock,id_tipo,habilitado) VALUES(?,?,?,?,?,?)");				
-				
-								
+												
 				psCrear.setString(1,producto.getNombre_producto());
 				psCrear.setFloat(2, producto.getPrecio());			
 				psCrear.setString(3, producto.getImagen());				
@@ -31,27 +30,41 @@ public class ProductoDatos {
 				psCrear.setInt(5, producto.getTipo().getId_tipo());
 				psCrear.setBoolean(6, producto.isHabilitado());
 
-				psCrear.execute();
-				psCrear.close();
-				miConexion.close();				
+				psCrear.execute();			
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psCrear != null) psCrear.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	}
 
-	public void deshabilitarProducto(int id_producto) {
-		Connection miConexion;
-
+	public void deshabilitarProducto(int id_producto) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
+		PreparedStatement psEliminar = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null)
-			{
-				PreparedStatement psEliminar = null;
+			{				
 				psEliminar = (PreparedStatement)miConexion.prepareStatement("UPDATE productos" + 
 				" SET habilitado=? WHERE id_producto=?");
 
@@ -59,32 +72,42 @@ public class ProductoDatos {
 				psEliminar.setInt(2, id_producto);
 
 				psEliminar.execute();
-				psEliminar.close();
-				miConexion.close();
-			}
-		}
 
-		catch(SQLException Ex)
-		{
-			JOptionPane.showMessageDialog(null, "Error en la conexión con la base de datos ");
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			}
+
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psEliminar != null) psEliminar.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	}
 
-	public void editarProducto(Producto producto) throws FileNotFoundException {
-		Connection miConexion;
-
+	public void editarProducto(Producto producto) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
+		PreparedStatement psEditar = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psEditar = null;
+				
 				psEditar = (PreparedStatement)miConexion.prepareStatement("UPDATE productos" + 
 						" SET nombre_producto=?,precio=?,img=?,stock=?,id_tipo=? WHERE" + 
 				" id_producto=?");
@@ -97,29 +120,40 @@ public class ProductoDatos {
 				psEditar.setInt(6, producto.getId_producto());
 
 				psEditar.execute();
-				psEditar.close();
-
-				miConexion.close();
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psEditar != null) psEditar.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	}
 
-	public Producto getProductoHabilitado(int id_producto) {
-		Connection miConexion;
+	public Producto getProductoHabilitado(int id_producto) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
 		Producto producto = null;
+		PreparedStatement psGet = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGet = null;
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto, nombre_producto," + 
 				"precio,img,stock,id_tipo FROM productos WHERE id_producto=? AND habilitado=?"); 
 
@@ -140,30 +174,43 @@ public class ProductoDatos {
 					producto.setTipo(tbd.getTipoPostre(rsGet.getInt(6)));
 				}
 
-				psGet.close();
-
 			}
-			miConexion.close();
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGet != null) psGet.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return producto;
 	}	
 	
-	public Producto getProductoHabilitado(String nombre_producto) {
-		Connection miConexion;
+	public Producto getProductoHabilitado(String nombre_producto) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		Producto producto = null;
+		PreparedStatement psGet = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGet = null;
+				
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto, nombre_producto," + 
 				"precio,img,stock,id_tipo FROM productos WHERE nombre_producto=? AND habilitado=?"); 
 
@@ -182,29 +229,44 @@ public class ProductoDatos {
 					TipoPostreDatos tbd = new TipoPostreDatos();
 					producto.setTipo(tbd.getTipoPostre(rsGet.getInt(6)));
 				}
-				psGet.close();
+				
 			}
-			miConexion.close();
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGet != null) psGet.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return producto;
 	}	
 
-	public Producto getProducto(int id_producto) {
-		Connection miConexion;
+	public Producto getProducto(int id_producto) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		Producto producto = null;
+		PreparedStatement psGet = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGet = null;
+				
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto, nombre_producto," + 
 				"precio,img,stock,id_tipo,habilitado FROM productos WHERE id_producto=? ;"); 
 
@@ -222,29 +284,44 @@ public class ProductoDatos {
 					producto.setTipo(tbd.getTipoPostre(rsGet.getInt(6)));
 					producto.setHabilitado(rsGet.getBoolean(7));
 				}
-				psGet.close();
+				
 			}
-			miConexion.close();
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGet != null) psGet.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return producto;
 	}
 	
-	public Producto getProducto(String nombre_producto) {
-		Connection miConexion;
+	public Producto getProducto(String nombre_producto) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		Producto producto = null;
+		PreparedStatement psGet = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGet = null;
+				
 				psGet = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto, nombre_producto," + 
 				"precio,img,stock,id_tipo,habilitado FROM productos WHERE nombre_producto=? ;"); 
 
@@ -262,29 +339,44 @@ public class ProductoDatos {
 					TipoPostreDatos tbd = new TipoPostreDatos();
 					producto.setTipo(tbd.getTipoPostre(rsGet.getInt(6)));
 				}
-				psGet.close();
+				
 			}
-			miConexion.close();
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGet != null) psGet.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return producto;
 	}
 	
-	public ArrayList<Producto> getAllProductosHabilitados() {
-		Connection miConexion;
+	public ArrayList<Producto> getAllProductosHabilitados() throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
 		ArrayList<Producto> productos = new ArrayList<Producto>();
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto," + 
 				"nombre_producto,precio,img,stock,id_tipo,habilitado FROM productos WHERE habilitado=?");
 				
@@ -305,31 +397,44 @@ public class ProductoDatos {
 
 					producto = null;
 				}
-				psGetAll.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return productos;
 	}
 	
-	public ArrayList<Producto> getAllProductos(int idTipo) {
-		Connection miConexion;
+	public ArrayList<Producto> getAllProductos(int idTipo) throws IOException, ClassNotFoundException, ApplicationException {
+		Connection miConexion = null;
 		ArrayList<Producto> productos = new ArrayList<Producto>();
-
+		PreparedStatement psGetAll = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null)
 			{
-				PreparedStatement psGetAll = null;
+				
 				psGetAll = (PreparedStatement)miConexion.prepareStatement("SELECT id_producto," + 
 				"nombre_producto,precio,img,stock,id_tipo,habilitado FROM productos WHERE id_tipo=? ;");
 				psGetAll.setInt(1, idTipo);
@@ -351,28 +456,42 @@ public class ProductoDatos {
 
 					producto = null;
 				}
-				psGetAll.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psGetAll != null) psGetAll.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return productos;	
 	}
 	
-	public void actualizarStock(int idProd, int cantidad ) {
-		Connection miConexion;
+	public void actualizarStock(int idProd, int cantidad ) throws ApplicationException, IOException, ClassNotFoundException {
+		Connection miConexion = null;
+		PreparedStatement psEditar = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psEditar = null;
+				
 				psEditar = (PreparedStatement)miConexion.prepareStatement("UPDATE productos" + 
 						" SET stock=? WHERE id_producto=?");
 				
@@ -381,29 +500,41 @@ public class ProductoDatos {
 				
 
 				psEditar.execute();
-				psEditar.close();
 
-				miConexion.close();
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psEditar != null) psEditar.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 	}
 	
-	public boolean hayStock(int idProd, int cantidad ) {	
-		Connection miConexion;
-		
+	public boolean hayStock(int idProd, int cantidad ) throws ApplicationException, IOException, ClassNotFoundException {	
+		Connection miConexion = null;
+		PreparedStatement psSelect = null;
 		try
 		{
 			miConexion = Adapter.GetConnection();
 			if(miConexion!=null) {
-				PreparedStatement psSelect = null;
+				
 				psSelect = (PreparedStatement)miConexion.prepareStatement("SELECT stock FROM productos " + 
 						"WHERE id_producto=?");				
 			
@@ -416,17 +547,30 @@ public class ProductoDatos {
 					else
 						return false;
 				}
-				psSelect.close();
-				miConexion.close();
+
 			}
-		} catch(SQLException Ex) {
-			Ex.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(SQLException e){
+			
+			throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+		}
+		finally{
+			
+			try {
+						
+				if(psSelect != null) psSelect.close();
+				if(miConexion != null) miConexion.close();				
+				
+			} catch(SQLException e){
+				
+				throw new ApplicationException("Error al recuperar estado en la base de datos", e);	
+				
+			}
+			finally{
+				
+				Adapter.getInstancia().releaseConn();
+				
+			}
+			
 		}
 		return false;
 	}	

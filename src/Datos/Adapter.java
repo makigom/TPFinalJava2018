@@ -10,6 +10,9 @@ import java.util.Properties;
 
 public class Adapter {
 	
+	private int cantCon;
+	private Connection conn;
+	
 	public static Connection GetConnection() throws IOException, ClassNotFoundException, SQLException {
  
         Connection connection;
@@ -33,4 +36,25 @@ public class Adapter {
  
         return connection;
     }
+	
+	private static Adapter instancia;
+	
+	public static Adapter getInstancia(){
+		if (instancia==null){
+			instancia = new Adapter();
+		}
+		return instancia;
+	}
+	
+	public void releaseConn(){
+		try {
+			cantCon--;
+			if(cantCon==0){
+				conn.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
